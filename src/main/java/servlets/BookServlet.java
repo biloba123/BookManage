@@ -16,22 +16,24 @@ import dao.BookDAO;
 /**
  * Servlet implementation class BookServlet
  */
-@WebServlet("/BookServlet")
-public class BookServlet extends HttpServlet {
+@WebServlet("/get-books")
+public class BookServlet extends BaseServlet {
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		response.setContentType("text/html;charset=utf-8");
-		HttpSession session=request.getSession();
-		BookDAO bDao=new BookDAO();
-		List<Book> books=bDao.getAllBooks();
-	
-		System.out.println(books.get(0).toString());
-		session.setAttribute("books", books);
-		response.sendRedirect("book-list.jsp");
+	@Override
+	protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		// TODO Auto-generated method stub
+		init(request, response);
+		// 判断是否登录
+		if (isLogined()) {
+			BookDAO bDao = new BookDAO();
+			List<Book> books = bDao.getAllBooks();
+
+			mSession.setAttribute("books", books);
+			mResponse.sendRedirect("book-list.jsp");
+		} else {
+			backToIndex("请先登录");
+		}
 	}
 
 }

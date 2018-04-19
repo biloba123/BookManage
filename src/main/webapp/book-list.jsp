@@ -14,17 +14,57 @@
 <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
 <script
 	src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script defer
+	src="https://use.fontawesome.com/releases/v5.0.10/js/all.js"
+	integrity="sha384-slN8GvtUJGnv6ca26v8EzVaR9DC58QEwsIk9q1QXdCU8Yu8ck/tL/5szYlBbqmS+"
+	crossorigin="anonymous"></script>
 
 <link href="jumbotron-narrow.css" rel="stylesheet">
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		
+		$("#delete-books").click(function() {
+
+			var dels = document.getElementsByName("del");
+			var val = "";
+			for (i = 0; i < dels.length; i++) {
+				if (dels[i].checked) {
+					if (val == "") {
+						val += dels[i].value;
+					} else {
+						val += "," + dels[i].value;
+					}
+				}
+			}
+
+			if (val == "") {
+				alert("请选择要删除的书籍");
+			} else {
+				var isConfirm = confirm("确认删除？书籍编号：" + val);
+				if (isConfirm) {
+					window.location.href="delete-books?books="+val;
+				}
+			}
+
+		});
+	});
+</script>
 
 <title>Book list</title>
 </head>
 <body>
+	<%
+		if (session.getAttribute("user") == null) {
+			response.sendRedirect("index.jsp");
+		}
+	%>
+
 	<div class="container">
 		<div class="header clearfix">
 			<nav>
 			<ul class="nav nav-pills pull-right">
-				<li role="presentation"><a href="#">注销</a></li>
+				<li role="presentation"><a href="logout">注销</a></li>
 			</ul>
 			</nav>
 			<h3 class="text-muted">图书管理系统</h3>
@@ -47,29 +87,25 @@
 			<!-- Collect the nav links, forms, and other content for toggling -->
 			<div class="collapse navbar-collapse"
 				id="bs-example-navbar-collapse-1">
-				<ul class="nav navbar-nav">
-					<li class="dropdown"><a href="#" class="dropdown-toggle"
-						data-toggle="dropdown" role="button" aria-haspopup="true"
-						aria-expanded="false">Dropdown <span class="caret"></span></a>
-						<ul class="dropdown-menu">
-							<li><a href="#">Action</a></li>
-							<li><a href="#">Another action</a></li>
-							<li><a href="#">Something else here</a></li>
-							<li role="separator" class="divider"></li>
-							<li><a href="#">Separated link</a></li>
-							<li role="separator" class="divider"></li>
-							<li><a href="#">One more separated link</a></li>
-						</ul></li>
-				</ul>
-				<form class="navbar-form navbar-left">
+				<form class="navbar-form navbar-left" action="search-book">
+				<select name="search-type" style="height: 25px;">
+						<option value="name">书名</option>
+						<option value="author">作者</option>
+						<option value="isbn">ISBN</option>
+						<option value="price">价格</option>
+						<option value="publishTime">出版日期</option>
+					</select>
 					<div class="form-group">
-						<input type="text" class="form-control" placeholder="Search">
+						<input name="text" type="text" class="form-control" placeholder="Search">
 					</div>
-					<button type="submit" class="btn btn-default">Submit</button>
+					<button id="btn-search" type="submit" class="btn btn-info">
+						<i class="fa fa-search"></i>
+					</button>
 				</form>
 				<ul class="nav navbar-nav navbar-right">
-					<li><a href="#">添加图书</a></li>
-					<li><a href="#">删除图书</a></li>
+					<li><a href="book-add.jsp"><i class="fa fa-plus-circle"></i>
+							添加图书</a></li>
+					<li><a id="delete-books"><i class="fa fa-trash"></i> 删除图书</a></li>
 				</ul>
 			</div>
 			<!-- /.navbar-collapse -->
@@ -84,8 +120,10 @@
 							<th>书名</th>
 							<th>作者</th>
 							<th>ISBN</th>
+							<th>出版日期</th>
 							<th>价格</th>
 							<th>库存量</th>
+							<th>选择</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -93,9 +131,11 @@
 							List<Book> books = (List<Book>) session.getAttribute("books");
 							if (books != null) {
 								for (Book book : books) {
-									out.print("<tr><td>" + book.getId() + "</td><td>" + book.getName() + "</td><td>" + book.getAuthor()
-											+ "</td><td>" + book.getIsbn() + "</td><td>" + book.getPrice() + "</td><td>"
-											+ book.getStock() + "</td><tr>");
+									out.print("<tr><td>" + book.getId() + "</td><td><a href='book-add.jsp?id=" + book.getId() + "'>"
+											+ book.getName() + "</a></td><td>" + book.getAuthor() + "</td><td>" + book.getIsbn()
+											+ "</td><td>" + book.getPublishTime() + "</td><td>" + book.getPrice() + "</td><td>"
+											+ book.getStock() + "</td><td><input type=\"checkbox\" name=\"del\" value=\"" + book.getId()
+											+ "\"/>" + "</td><tr>");
 								}
 							}
 						%>

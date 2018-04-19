@@ -16,21 +16,10 @@ public class BookDAO {
 	}
 	
 	public List<Book> getAllBooks(){
-		List<Book> books=new ArrayList<>();
 		mConnction.getConnection();
 		String sql="select * from book";
 		ResultSet set=mConnction.executeQuery(sql);
-		try {
-			while(set.next()) {
-				books.add(new Book(set));
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			mConnction.closeConnection();
-		}
-		
-		return books;
+		return resultSetToList(set);
 	}
 	
 	public List<Book> getBooks(int start, int count){
@@ -89,17 +78,51 @@ public class BookDAO {
 		mConnction.closeConnection();
 	}
 	
-	public void deleteBooks(List<Book> books) {
+	public void deleteBooks(String books) {
+		if(books==null || books.isEmpty()) {
+			return;
+		}
 		
+		mConnction.getConnection();
+		String sql="delete from book where id in ("+books+")";
+		mConnction.executeOther(sql);
+		mConnction.closeConnection();
 	}
 	
-	public List<Book> queryBy(String name, Object value){
-		List<Book> books=new ArrayList<>();
-		return books;
+	public List<Book> queryBy(String name, String value){
+		mConnction.getConnection();
+		String sql="select * from book where "+name+" like \'%"+value+"%\'";
+		mConnction.executeQuery(sql);
+		ResultSet set=mConnction.executeQuery(sql);
+		return resultSetToList(set);
 	}
 	
 	public List<Book> queryByRange(String name, Object start, Object end){
+		mConnction.getConnection();
+		String sql;
+		if(start instanceof String) {
+			sql="select * from book where "+name+" between \'"+start+"\' and \'"+end+"\'";
+		}else {
+			sql="select * from book where "+name+" between "+start+" and "+end;
+		}
+		System.out.println(sql);
+		mConnction.executeQuery(sql);
+		ResultSet set=mConnction.executeQuery(sql);
+		return resultSetToList(set);
+	}
+	
+	private List<Book> resultSetToList(ResultSet set) {
 		List<Book> books=new ArrayList<>();
+		try {
+			while(set.next()) {
+				books.add(new Book(set));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			mConnction.closeConnection();
+		}
+		
 		return books;
 	}
 	

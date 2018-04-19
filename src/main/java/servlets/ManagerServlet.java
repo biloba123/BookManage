@@ -16,21 +16,22 @@ import dao.ManagerDAO;
  * Servlet implementation class ManagerServlet
  */
 @WebServlet("/check-account")
-public class ManagerServlet extends HttpServlet {
+public class ManagerServlet extends BaseServlet {
 	private static final long serialVersionUID = 1L;
 
-	protected void service(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+	@Override
+	protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		// TODO Auto-generated method stub
+		init(request, response);
 		String username = request.getParameter("username"), pwd = request.getParameter("password");
 
 		ManagerDAO managerDAO = new ManagerDAO();
-		HttpSession session = request.getSession();
 		if (managerDAO.check(username, pwd)) {
-			session.removeAttribute("err");
-			response.sendRedirect("BookServlet");
+			removeErrorInfo();
+			login(username);
+			response.sendRedirect("get-books");
 		} else {
-			session.setAttribute("err", "用户名或密码错误");
-			response.sendRedirect("index.jsp");
+			backToIndex("用户名或密码错误");
 		}
 	}
 

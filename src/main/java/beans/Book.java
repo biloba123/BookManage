@@ -1,8 +1,13 @@
 package beans;
 
+import java.io.UnsupportedEncodingException;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.mysql.jdbc.StringUtils;
 
 public class Book {
 	private int id;
@@ -10,12 +15,30 @@ public class Book {
 	private String name;
 	private String author;
 	private float price;
-	private Date publishTime;
+	private String publishTime;
 	private float discount;
 	private int stock;
 	
-	public Book() {
-		
+	public Book(HttpServletRequest request) throws UnsupportedEncodingException {  
+		name=new String(request.getParameter("name").getBytes("iso-8859-1"), "utf-8");
+		author=new String(request.getParameter("author").getBytes("iso-8859-1"), "utf-8");
+		isbn=request.getParameter("isbn");
+		String price=request.getParameter("price");
+		if(!StringUtils.isNullOrEmpty(price)) {
+			this.price=Float.valueOf(price);
+		}
+		String discount=request.getParameter("discount");
+		if(!StringUtils.isNullOrEmpty(discount)) {
+			this.discount=Float.valueOf(discount);
+		}
+		String publishTime=request.getParameter("publishTime");
+		if(!StringUtils.isNullOrEmpty(publishTime)) {
+			this.publishTime=publishTime;
+		}
+		String stock=request.getParameter("stock");
+		if(!StringUtils.isNullOrEmpty(stock)) {
+			this.stock=Integer.valueOf(stock);
+		}
 	}
 	
 	public Book(ResultSet rSet) {
@@ -25,7 +48,8 @@ public class Book {
 			name=rSet.getString("name");
 			author=rSet.getString("author");
 			price=rSet.getFloat("price");
-			publishTime=rSet.getDate("publishTime");
+			Date date=rSet.getDate("publishTime");
+			publishTime=date==null?null: date.toString();
 			discount=rSet.getFloat("discount");
 			stock=rSet.getInt("stock");
 		} catch (SQLException e) {
@@ -69,9 +93,9 @@ public class Book {
 		this.price = price;
 	}
 	public String getPublishTime() {
-		return publishTime.toString();
+		return publishTime;
 	}
-	public void setPublishTime(Date publishTime) {
+	public void setPublishTime(String publishTime) {
 		this.publishTime = publishTime;
 	}
 	public float getDiscount() {
@@ -93,15 +117,15 @@ public class Book {
 				'\''+name+"\',"+
 				'\''+author+"\',"+
 				price+','+
-				'\''+getPublishTime()+"\',"+
+				(publishTime==null?"null":'\''+publishTime+'\'')+','+
 				discount+','+
-				stock+','+")";
+				stock+")";
 	}
 
 	@Override
 	public String toString() {
-		return "isbn=\'" + isbn + "\', name=\'" + name + "\', author=\'" + author + "\', price=" + price + ", publishTime=\'"
-				+ publishTime + "\', discount=" + discount + ", stock=" + stock;
+		return "isbn=\'" + isbn + "\', name=\'" + name + "\', author=\'" + author + "\', price=" + price 
+				+ (publishTime==null?"": ", publishTime="+"\'"+publishTime+"\'") + ", discount=" + discount + ", stock=" + stock;
 	}
 	
 	
