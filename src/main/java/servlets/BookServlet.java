@@ -18,8 +18,7 @@ import dao.BookDAO;
  */
 @WebServlet("/get-books")
 public class BookServlet extends BaseServlet {
-	private static final long serialVersionUID = 1L;
-
+	
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		// TODO Auto-generated method stub

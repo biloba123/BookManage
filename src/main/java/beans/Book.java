@@ -19,6 +19,7 @@ public class Book {
 	private float discount;
 	private int stock;
 	
+	//通过表单提交的数据构建Book
 	public Book(HttpServletRequest request) throws UnsupportedEncodingException {  
 		name=new String(request.getParameter("name").getBytes("iso-8859-1"), "utf-8");
 		author=new String(request.getParameter("author").getBytes("iso-8859-1"), "utf-8");
@@ -41,6 +42,7 @@ public class Book {
 		}
 	}
 	
+	//通过数据库查询结果集构建
 	public Book(ResultSet rSet) {
 		try {
 			id=rSet.getInt("id");
